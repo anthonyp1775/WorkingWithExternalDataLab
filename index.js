@@ -33,6 +33,8 @@ async function initialLoad() {
     option.textContent = breed.name;
     breedSelect.append(option);
   });
+
+  await getBreedInfo();
 }
 initialLoad();
 
@@ -50,6 +52,58 @@ initialLoad();
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
+function createInfoDump(breed) {
+  infoDump.innerHTML = "";
+  if (!breed) return;
+
+  const title = document.createElement("h3");
+  title.textContent = breed.name;
+
+  const description = document.createElement("p");
+  description.textContent = breed.description;
+
+  const list = document.createElement("ul");
+  const facts = [
+    ["Origin", breed.origin],
+    ["Temperament", breed.temperament],
+    ["Life Span", breed.life_span ? `${breed.life_span} years` : undefined],
+    ["Wikipedia", breed.wikipedia_url],
+  ];
+  facts.forEach(([label, value]) => {
+    if (!value) return;
+    const item = document.createElement("li");
+    item.textContent = `${label}: ${value}`;
+    list.append(item);
+  });
+
+  infoDump.append(title, description, list);
+}
+
+async function getBreedInfo() {
+  const breedId = breedSelect.value;
+  const response = await fetch(
+    `https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}&limit=10`,
+    { headers: { "x-api-key": API_KEY } }
+  );
+  const images = await response.json();
+
+  Carousel.clear();
+
+  images.forEach((image) => {
+    const carouselItem = Carousel.createCarouselItem(
+      image.url,
+      image.breeds?.[0]?.name ?? "Cat image",
+      image.id
+    );
+    Carousel.appendCarousel(carouselItem);
+  });
+
+  Carousel.start();
+
+  createInfoDump(images[0]?.breeds?.[0]);
+}
+
+breedSelect.addEventListener("change", getBreedInfo);
 
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
