@@ -1,4 +1,3 @@
-import * as bootstrap from "bootstrap";
 import { favourite } from "./index.js";
 
 export function createCarouselItem(imgSrc, imgAlt, imgId) {
@@ -10,9 +9,9 @@ export function createCarouselItem(imgSrc, imgAlt, imgId) {
   img.alt = imgAlt;
 
   const favBtn = clone.querySelector(".favourite-button");
-  favBtn.addEventListener("click", () => {
-    favourite(imgId);
-  });
+favBtn.addEventListener("click", (e) => {
+  favourite(imgId, e.currentTarget);
+});
 
   return clone;
 }
@@ -38,6 +37,7 @@ export function start() {
     "#carouselExampleControls"
   );
   if (window.matchMedia("(min-width: 768px)").matches) {
+    // Relying on global bootstrap loaded via CDN script tag
     const carousel = new bootstrap.Carousel(multipleCardCarousel, {
       interval: false
     });
